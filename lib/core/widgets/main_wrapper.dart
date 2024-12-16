@@ -1,47 +1,44 @@
+
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather/features/weather_feature/domain/entities/current_city_entity.dart';
-import 'package:weather/features/weather_feature/presentation/bloc/cw_status.dart';
-import 'package:weather/features/weather_feature/presentation/bloc/home_bloc.dart';
 
-class MainWrapper extends StatefulWidget {
-  const MainWrapper({super.key});
+import '../../features/feature_bookmark/presentation/screens/bookmark_screen.dart';
+import '../../features/feature_weather/presentation/screens/home_screen.dart';
+import 'app_background.dart';
+import 'bottom_nav.dart';
 
-  @override
-  State<MainWrapper> createState() => _MainWrapperState();
-}
 
-class _MainWrapperState extends State<MainWrapper> {
+class MainWrapper extends StatelessWidget {
+  MainWrapper({Key? key}) : super(key: key);
 
-  @override
-  void initState() {
-    super.initState();
+  final PageController pageController = PageController(initialPage: 0);
 
-    BlocProvider.of<HomeBloc>(context).add(LoadCwEvent('Herat'));
-  }
+
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            BlocBuilder<HomeBloc,HomeState>(builder: (context, state) {
-              if(state.cwStatus is CwLoading){
-                return const Text('LOADING...');
-              }
 
-              if(state.cwStatus is CwCompleted){
-                CwCompleted cwCompleted = state.cwStatus as CwCompleted;
-                final CurrentCityEntity currentCityEntity = cwCompleted.currentCityEntity;
-                return Text('${currentCityEntity.name}');
-              }
-              if(state.cwStatus is CwError){
-                return const Text('Error...');
-              }
-              return Container();
-            },)
-          ],
+    List<Widget> pageViewWidget = [
+      const HomeScreen(),
+      BookMarkScreen(pageController: pageController,),
+    ];
+
+    var height = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      extendBody: true,
+      bottomNavigationBar: BottomNav(Controller: pageController),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AppBackground.getBackGroundImage(),
+              fit: BoxFit.cover
+          ),
+        ),
+        height: height,
+        child: PageView(
+          controller: pageController,
+          children: pageViewWidget,
         ),
       ),
     );
